@@ -62,3 +62,39 @@
     (is (= {:what-if {:href "https://what-if.xkcd.com/{id}" :templated true}}
            (new-link :what-if "https://what-if.xkcd.com/{id}" 
                      :templated true)))))
+
+(deftest new-link-curies
+  (testing "Tests that it will not allow you to create rel=:curies"
+    (is (thrown? java.lang.AssertionError
+      (new-link :curies "/docs/{id}")))))
+
+;;;; Tests new-curie
+
+(deftest new-curie-valid-minimal
+  (testing "Tests valid new-curie produces expected output."
+    (is (= {:curies {:name "docs" :href "/docs/{id}" :templated true}}
+           (new-curie "docs" "/docs/{id}")))))
+
+(deftest new-curie-valid
+  (testing "Tests valid new-curie produces expected output."
+    (is (= {:curies {:name "docs" :href "/docs/{id}/" :templated true 
+            :type "type" :deprecation "deprecation" :profile "profile" 
+            :title "title" :hreflang "hreflang"}}
+           (new-curie "docs" "/docs/{id}" :type "type" 
+                      :deprecation "deprecation" :profile "profile" 
+                      :title "title" :hreflang "hreflang")))))
+
+(deftest new-curie-invalid-property
+  (testing "Tests that if you add a non-property, throws error."
+    (is (thrown? java.lang.AssertionError
+      (new-curie "docs" "/docs/{id}" :foobar "baz")))))
+    
+(deftest new-curie-set-templated
+  (testing "Tests that you cannot set templated"
+    (is (thrown? java.lang.AssertionError
+      (new-curie "docs" "/docs/{id}" :templated false)))))
+
+(deftest new-curie-link-untemplated
+  (testing "Tests that if the curie is untemplated, throws error."
+    (is (thrown? java.lang.AssertionError
+      (new-curie "docs" "/docs/13")))))
