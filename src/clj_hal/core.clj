@@ -46,7 +46,7 @@
 ;;; Creates a new curie
 (defn new-curie 
   "Creates a new curie. Curies are a special form of links of the form
-  {:rel \"curies\" :name name :href href :templated true & properties}.
+  {:curies {:name name :href href :templated true & properties}}.
   The properties :templated or :rel are fixed, and cannot be set."
   [name href & properties])
 
