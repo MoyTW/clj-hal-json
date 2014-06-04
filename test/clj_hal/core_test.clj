@@ -80,7 +80,7 @@
     (is (= {:curies {:name "docs" :href "/docs/{id}/" :templated true 
             :type "type" :deprecation "deprecation" :profile "profile" 
             :title "title" :hreflang "hreflang"}}
-           (new-curie "docs" "/docs/{id}" :type "type" 
+           (new-curie "docs" "/docs/{id}/" :type "type" 
                       :deprecation "deprecation" :profile "profile" 
                       :title "title" :hreflang "hreflang")))))
 

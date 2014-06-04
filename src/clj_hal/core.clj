@@ -4,11 +4,13 @@
 ;;;; implementation enforces self links in all resources.
 ;;;;   Resources are plain Clojure data structures which map directly to json.
 
-(defn validate-templated
+(defn templated-href-valid?
   "Ensures that a link is minimally templated; full documentation is here:
   http://tools.ietf.org/html/rfc6570"
   [link]
-  (re-find #"\{.+\}" link))
+  (if (:templated (second (first link)))
+      (re-find #"\{.+\}" (:href (second (first link))))
+      true))
 
 (def link-properties
   #{:href :templated :type :deprecation :name :profile :title :hreflang})
@@ -34,9 +36,7 @@
   [rel href & properties]
   {:post [(not= (keyword (ffirst %)) :curies)
           (every? link-properties (keys (second (first %))))
-          (if (:templated (second (first %)))
-              (validate-templated (:href (second (first %))))
-              true)]}
+          (templated-href-valid? %)]}
   {(keyword rel) (apply hash-map :href href properties)})
 
 ;;; Creates a new curie
@@ -44,7 +44,12 @@
   "Creates a new curie. Curies are a special form of links of the form
   {:curies {:name name :href href :templated true & properties}}.
   The properties :templated or :rel are fixed, and cannot be set."
-  [name href & properties])
+  [name href & properties]
+  {:pre [(not-any? #(= :rel (keyword %)) (take-nth 2 properties))
+         (not-any? #(= :templated (keyword %)) (take-nth 2 properties))]
+   :post [(every? link-properties (keys (second (first %))))
+          (templated-href-valid? %)]}
+  {:curies (apply hash-map :name name :href href :templated true properties)})
 
 (defn add-link
   "Creates and adds a new link. If there already exists a link with the 
