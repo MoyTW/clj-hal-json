@@ -52,14 +52,15 @@
   {:curies (apply hash-map :name name :href href :templated true properties)})
 
 (defn add-link
-  "Creates and adds a new link. If there already exists a link with the 
+  "Adds a new link, optionally creating. If there already exists in links the
   specified rel, it will turn it into a multi-link and add the new link.
   Attempting to add a curie will cause an error."
-  [resource rel href & properties])
+  ([resource link])
+  ([resource rel href & properties]))
 
 ;;; Takes multiple links
 (defn add-links
-  "Adds a variable number of links to the resource, merging links my rel. 
+  "Adds a variable number of links to the resource, merging links into rel. 
   Attempting to add a link with rel=\"curies\" will cause an error."
   [resource & links])
 

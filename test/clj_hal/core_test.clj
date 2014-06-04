@@ -100,10 +100,56 @@
       (new-curie "docs" "/docs/13")))))
 
 ;;;; Tests add-link
-#_(deftest add-link-valid)
-#_(deftest add-link-invalid-link)
-#_(deftest add-link-existing)
-#_(deftest add-link-rel-curies)
+
+(def info (new-resource "info.com"))
+
+(deftest add-link-create-valid
+  (testing "Tests valid link added to fresh resource"
+    (is (= {:_links {:self {:href "info.com"} 
+                     :data {:href "data.net" :hreflang "Logic"}}}
+           (add-link info :data "data.net" :hreflang "Logic")))))
+
+(deftest add-link-create-invalid
+  (testing "Tests invalid link construction"
+    (are [p v] (thrown? java.lang.AssertionError 
+                 (add-link info :data "data.net" p v))
+      :templated true
+      :nosuch "property")))
+
+(deftest add-link-valid-link
+  (testing "Tests that it accepts a valid link."
+    (is (= {:_links {:self {:href "info.com"} 
+                     :data {:href "data.net" :hreflang "Logic"}}}
+           (add-link info (new-link :data "data.net" :hreflang "Logic"))))))
+      
+(deftest add-link-invalid-link
+  (testing "Tests that it rejects an invalid link."
+    (is (thrown? java.lang.AssertionError
+      (add-link info {:data {:hreg "typo!" :hreflang "Logic"}})))))
+
+(deftest add-link-invalid-templated
+  (testing "Tests that it rejects a link which is not propertly templated."
+    (is (thrown? java.lang.AssertionError
+      (add-link info {:data {:href "data.com" :templated true}})))))
+      
+(deftest add-link-existing
+  (testing "Tests that existing rels added are combined into groups of links"
+    (is (= {:_links {:self {:href "info.com"} 
+                     :androids [{:href "data.net" :hreflang "Logic"}
+                                {:href "lore.net" :hreflang "Emotions"}]}}
+           (-> info
+               (add-link :androids "data.net" :hreflang "Logic")
+               (add-link :androids "lore.net" :hreflang "Emotions"))))))
+
+(deftest add-link-create-rel-curies
+  (testing "Tests that attempting to add reserved rel :curies will stop"
+    (is (thrown? java.lang.AssertionError
+      (add-link info (new-link :curies "explodes?"))))))
+
+(deftest add-link-rel-curies
+  (testing "Tests that attempting to add reserved rel :curies will stop"
+    (is (thrown? java.lang.AssertionError
+      (add-link info {:curies {:href "explodes?"}})))))
 
 ;;;; Tests add-links
 #_(deftest add-links-distinct-valid)
