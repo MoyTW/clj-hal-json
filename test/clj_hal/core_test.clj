@@ -98,3 +98,54 @@
   (testing "Tests that if the curie is untemplated, throws error."
     (is (thrown? java.lang.AssertionError
       (new-curie "docs" "/docs/13")))))
+
+;;;; Tests add-link
+#_(deftest add-link-valid)
+#_(deftest add-link-invalid-link)
+#_(deftest add-link-existing)
+#_(deftest add-link-rel-curies)
+
+;;;; Tests add-links
+#_(deftest add-links-distinct-valid)
+#_(deftest add-links-share-rel-valid)
+#_(deftest add-links-existing-rel-valid)
+#_(deftest add-links-contains-curie)
+
+;;;; Tests add-curie
+#_(deftest add-curie-valid-minimal)
+#_(deftest add-curie-valid)
+#_(deftest add-curie-invalid-property)
+#_(deftest add-curie-link-untemplated)
+#_(deftest add-curie-already-exists)
+
+;;;; Tests add-curies
+#_(deftest add-curies-distinct-valid)
+#_(deftest add-curies-invalid-property)
+#_(deftest add-curies-link-untemplated)
+#_(deftest add-curies-not-distinct)
+#_(deftest add-curies-already-exists)
+
+;;;; Tests add-property
+#_(deftest add-property-valid)
+#_(deftest add-property-invalid-key)
+#_(deftest add-property-exists)
+#_(deftest add-property-reserved)
+
+;;;; Tests add-properties
+#_(deftest add-properties-valid-single)
+#_(deftest add-properties-valid-multiple)
+#_(deftest add-properties-exists)
+#_(deftest add-properties-not-distinct)
+#_(deftest add-properties-reserved)
+#_(deftest add-properties-bad-input)
+
+;;;; Tests add-embedded-resource
+#_(deftest add-embedded-resource-new)
+#_(deftest add-embedded-resource-exists-rel)
+#_(deftest add-embedded-resource-not-resource)
+
+;;;; Tests add-embedded-resources
+#_(deftest add-embedded-resources-single)
+#_(deftest add-embedded-resources-multiple)
+#_(deftest add-embedded-resources-exists-rel)
+#_(deftest add-embedded-resources-one-not-resource)
