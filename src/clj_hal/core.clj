@@ -19,20 +19,12 @@
   [resource]
   (-> resource :_links :self :href))
 
-(defn validate-link
-  "Validates the link. Not really a very elegant way to do this; exceptions
-  are probably a better approach?"
-  [link]
-  (if-let [properties (second (first link))]
-    (and
-      (not= (keyword (ffirst link)) :curies)
-      (every? link-properties (keys properties))
-      (if (:templated properties) (validate-templated (:href properties)) true))))
-
 (defn new-resource
   "Creates a new resource. Resources are maps with reserved keys _links and
   _embedded, as well as a mandatory :self link."
   [self]
+  {:pre [self
+         (not (empty? self))]}
   {:_links {:self {:href self}}})
 
 (defn new-link
@@ -40,7 +32,11 @@
   Properties are keyword/value pairs. If the :templated property is true, 
   the href must be minimally templated."
   [rel href & properties]
-  {:post [(validate-link %)]} ; Should this be using preconditions?
+  {:post [(not= (keyword (ffirst %)) :curies)
+          (every? link-properties (keys (second (first %))))
+          (if (:templated (second (first %)))
+              (validate-templated (:href (second (first %))))
+              true)]}
   {(keyword rel) (apply hash-map :href href properties)})
 
 ;;; Creates a new curie
