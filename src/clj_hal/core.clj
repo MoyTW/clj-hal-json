@@ -73,7 +73,10 @@
 (defn add-links
   "Adds a variable number of links to the resource, merging links into rel. 
   Attempting to add a link with rel=\"curies\" will cause an error."
-  [resource & links])
+  [resource & links]
+  (if (and (= 1 (count links)) (not (map? (first links))))
+      (reduce add-link resource (first links))
+      (reduce add-link resource links)))
 
 (defn add-curie
   "Creates and adds a new curie. Attempting to add a curie whose name already
