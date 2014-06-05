@@ -84,6 +84,11 @@
                       :deprecation "deprecation" :profile "profile" 
                       :title "title" :hreflang "hreflang")))))
 
+(deftest new-curie-keyword
+  (testing "Tests that if you pass a keyword into name, coerces to string."
+    (is (= {:curies {:name "docs" :href "/docs/{id}" :templated true}}
+            (new-curie :docs "/docs/{id}")))))
+
 (deftest new-curie-invalid-property
   (testing "Tests that if you add a non-property, throws error."
     (is (thrown? java.lang.AssertionError
@@ -192,7 +197,14 @@
       (add-links info `(~planes ~tanks)))))
 
 ;;;; Tests add-curie
-#_(deftest add-curie-valid-minimal)
+(deftest add-curie-valid-minimal
+  (testing "Tests that a valid curie will be properly added."
+    (are [c] (= c {:_links {:self {:href "info.com"}
+                            :curies [{:name "minimal" 
+                                      :href "minimal.co" 
+                                      :templated true}]}})
+      (add-curie info :minimal "minimal.co")
+      (add-curie info "minimal" "minimal.co"))))
 #_(deftest add-curie-valid)
 #_(deftest add-curie-invalid-property)
 #_(deftest add-curie-link-untemplated)
