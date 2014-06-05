@@ -152,10 +152,44 @@
       (add-link info {:curies {:href "explodes?"}})))))
 
 ;;;; Tests add-links
-#_(deftest add-links-distinct-valid)
-#_(deftest add-links-share-rel-valid)
-#_(deftest add-links-existing-rel-valid)
-#_(deftest add-links-contains-curie)
+(def tanks (new-link :tanks "tanks.com"))
+(def planes (new-link :planes "planes.com"))
+(def more-planes (new-link :planes "moreplanes.com"))
+
+(deftest add-links-distinct-valid
+  (testing "Tests that adding distinct links works."
+    (is (= (-> info (add-link tanks) (add-link planes))
+           (apply add-links info [tanks planes])))))
+
+(deftest add-links-share-rel-valid
+  (testing "Tests that adding shared rels works."
+    (is (= (-> info (add-link planes) (add-link more-planes))
+           (apply add-links info [planes more-planes])))))
+
+(deftest add-links-existing-rel-valid
+  (testing "Tests that adding shared rels works."
+    (is (= (-> info (add-link planes) (add-link more-planes))
+           (as-> info $i
+                 (add-link $i planes)
+                 (apply add-links $i [more-planes]))))))
+
+(deftest add-links-contains-curie
+  (testing "Tests that cannot add a link with reserved rel :curies"
+    (is (thrown? java.lang.AssertionError
+      (apply add-links info [(new-link :valid "valid.com") 
+                             {:curies {:href "explodes?"}}])))))
+
+(deftest add-links-malformed-link
+  (testing "Tests that cannot add a link with reserved rel :curies"
+    (is (thrown? java.lang.AssertionError
+      (apply add-links info [(new-link :unvakud "valid.com") 
+                             {:invalid {:hreg "explodes?"}}])))))
+
+(deftest add-links-takes-vec-list
+  (testing "Tests that add-links can take a list or vector directly."
+    (are [c] (= (-> info (add-link planes) (add-link tanks)) c)
+      (add-links info [planes tanks])
+      (add-links info `(~planes ~tanks)))))
 
 ;;;; Tests add-curie
 #_(deftest add-curie-valid-minimal)
