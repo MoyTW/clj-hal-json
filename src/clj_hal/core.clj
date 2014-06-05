@@ -44,12 +44,15 @@
   "Creates a new curie. Curies are a special form of links of the form
   {:curies {:name name :href href :templated true & properties}}.
   The properties :templated or :rel are fixed, and cannot be set."
-  [name href & properties]
+  [name-value href & properties]
   {:pre [(not-any? #(= :rel (keyword %)) (take-nth 2 properties))
          (not-any? #(= :templated (keyword %)) (take-nth 2 properties))]
    :post [(every? link-properties (keys (second (first %))))
           (templated-href-valid? %)]}
-  {:curies (apply hash-map :name name :href href :templated true properties)})
+  {:curies (apply hash-map :name (name name-value)
+                           :href href 
+                           :templated true 
+                           properties)})
 
 (defn add-link
   "Adds a new link, optionally creating. If there already exists in links the
