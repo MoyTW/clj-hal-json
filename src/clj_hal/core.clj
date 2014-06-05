@@ -55,8 +55,19 @@
   "Adds a new link, optionally creating. If there already exists in links the
   specified rel, it will turn it into a multi-link and add the new link.
   Attempting to add a curie will cause an error."
-  ([resource link])
-  ([resource rel href & properties]))
+  ([resource link]
+  {:pre [(not= :curies (keyword (ffirst link)))
+         (every? link-properties (keys (second (first link))))
+         (templated-href-valid? link)]}
+    (update-in resource 
+               [:_links (ffirst link)]
+               #(let [contents (second (first link))]
+                 (cond
+                   (nil? %) contents
+                   (map? %) (conj [] % contents)
+                   :else (conj % contents)))))
+  ([resource rel href & properties] 
+    (add-link resource (apply new-link rel href properties))))
 
 ;;; Takes multiple links
 (defn add-links
