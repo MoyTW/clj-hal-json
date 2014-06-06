@@ -59,18 +59,18 @@
   specified rel, it will turn it into a multi-link and add the new link.
   Attempting to add a curie will cause an error."
   ([resource link]
-  {:pre [(not= :curies (keyword (ffirst link)))
-         (every? link-properties (keys (second (first link))))
-         (templated-href-valid? link)]}
-  (update-in resource 
-             [:_links (ffirst link)]
-             #(let [contents (second (first link))]
-               (cond
-                 (nil? %) contents
-                 (map? %) (conj [] % contents)
-                 :else (conj % contents)))))
+    {:pre [(not= :curies (keyword (ffirst link)))
+           (every? link-properties (keys (second (first link))))
+           (templated-href-valid? link)]}
+    (update-in resource 
+               [:_links (ffirst link)]
+               #(let [contents (second (first link))]
+                 (cond
+                   (nil? %) contents
+                   (map? %) (conj [] % contents)
+                   :else (conj % contents)))))
   ([resource rel href & properties] 
-  (add-link resource (apply new-link rel href properties))))
+    (add-link resource (apply new-link rel href properties))))
 
 ;;; Takes multiple links
 (defn add-links
@@ -85,16 +85,16 @@
   "Creates and adds a new curie. Attempting to add a curie whose name already
   exists will cause an error."
   ([resource curie]
-  {:pre [(= (ffirst curie) :curies)
-         (every? link-properties (keys (second (first curie))))
-         (:templated (second (first curie)))
-         (templated-href-valid? curie)
-         (not-any? #(= (:name (second (first curie))) (:name %))
-                   (-> resource :_links :curies))]}
-  (update-in resource [:_links :curies] 
-                      #((fnil conj []) % (second (first curie)))))
+    {:pre [(= (ffirst curie) :curies)
+           (every? link-properties (keys (second (first curie))))
+           (:templated (second (first curie)))
+           (templated-href-valid? curie)
+           (not-any? #(= (:name (second (first curie))) (:name %))
+                     (-> resource :_links :curies))]}
+    (update-in resource [:_links :curies] 
+                        #((fnil conj []) % (second (first curie)))))
   ([resource name href & properties]
-  (add-curie resource (apply new-curie name href properties))))
+    (add-curie resource (apply new-curie name href properties))))
 
 (defn add-curies
   "Adds multiple curies. Attempting to add a curie whose name already exists
@@ -108,10 +108,12 @@
   "Adds a single property to the resource. If there already exists a property
   with name, will overwrite the existing property. Attempting to add the
   properties _links or _embedded will cause an error."
-  [resource name value]
-  {:pre [(keyword name) 
-         (not ((keyword name) #{:_embedded :_links}))]}
-  (conj resource [(keyword name) value]))
+  ([resource [name value]]
+    (add-property resource name value))
+  ([resource name value]
+    {:pre [(keyword name) 
+           (not ((keyword name) #{:_embedded :_links}))]}
+    (conj resource [(keyword name) value])))
 
 ;;; Takes a collection of properties?
 ;; Properties are maps/2-tuples?
@@ -120,7 +122,12 @@
   collection, or a variable number of :key :value parameters. Existing 
   properties sharing names with the new properties will be overwritten. 
   Attempting to add the properties _links or _embedded will cause an error."
-  [resource & properties])
+  [resource & properties]
+  (if (= 1 (count properties))
+      (let [props (first properties)
+            pairs (if (map? props) props (partition 2 props))]
+        (reduce add-property resource pairs))
+      (add-properties resource properties)))
 
 (defn add-embedded-resource
   "Adds a single embedded resource mapped to the given rel in _embedded. If
