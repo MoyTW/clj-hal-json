@@ -62,15 +62,15 @@
   {:pre [(not= :curies (keyword (ffirst link)))
          (every? link-properties (keys (second (first link))))
          (templated-href-valid? link)]}
-    (update-in resource 
-               [:_links (ffirst link)]
-               #(let [contents (second (first link))]
-                 (cond
-                   (nil? %) contents
-                   (map? %) (conj [] % contents)
-                   :else (conj % contents)))))
+  (update-in resource 
+             [:_links (ffirst link)]
+             #(let [contents (second (first link))]
+               (cond
+                 (nil? %) contents
+                 (map? %) (conj [] % contents)
+                 :else (conj % contents)))))
   ([resource rel href & properties] 
-    (add-link resource (apply new-link rel href properties))))
+  (add-link resource (apply new-link rel href properties))))
 
 ;;; Takes multiple links
 (defn add-links
@@ -84,8 +84,17 @@
 (defn add-curie
   "Creates and adds a new curie. Attempting to add a curie whose name already
   exists will cause an error."
-  ([resource link])
-  ([resource name href & properties]))
+  ([resource curie]
+  {:pre [(= (ffirst curie) :curies)
+         (every? link-properties (keys (second (first curie))))
+         (:templated (second (first curie)))
+         (templated-href-valid? curie)
+         (not-any? #(= (:name (second (first curie))) (:name %))
+                   (-> resource :_links :curies))]}
+  (update-in resource [:_links :curies] 
+                      #((fnil conj []) % (second (first curie)))))
+  ([resource name href & properties]
+  (add-curie resource (apply new-curie name href properties))))
 
 (defn add-curies
   "Adds multiple curies. Attempting to add a curie whose name already exists

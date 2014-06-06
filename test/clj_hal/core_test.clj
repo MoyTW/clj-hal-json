@@ -220,9 +220,9 @@
 (deftest add-curie-malformed
   (testing "Tests that a malformed curie will be rejected."
     (are [c] (thrown? java.lang.AssertionError (add-curie info c))
-      {:curies {:href "lol/{template}" :name "lol"}} ; missing templated true
-      {:curies {:hreg "lol/{template}" :name "lol" :templated true}}
-      ["and now for something completely different"])))
+      {:not-curies {:href "lol/{template}" :name "lol" :templated true}}
+      {:curies {:href "lol/{template}" :name "lol"}}
+      {:curies {:hreg "lol/{template}" :name "lol" :templated true}})))
 
 (deftest add-curie-untemplated
   (testing "Tests that untemplated fails."
