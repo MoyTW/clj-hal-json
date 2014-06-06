@@ -108,14 +108,18 @@
   "Adds a single property to the resource. If there already exists a property
   with name, will overwrite the existing property. Attempting to add the
   properties _links or _embedded will cause an error."
-  [resource name value])
+  [resource name value]
+  {:pre [(keyword name) 
+         (not ((keyword name) #{:_embedded :_links}))]}
+  (conj resource [(keyword name) value]))
 
 ;;; Takes a collection of properties?
 ;; Properties are maps/2-tuples?
 (defn add-properties 
-  "Adds multiple properties to the resource. Existing properties sharing names
-  with the new properties will be overwritten. Attempting to add the properties
-  _links or _embedded will cause an error."
+  "Adds multiple properties to the resource. Can take a map of properties, a 
+  collection, or a variable number of :key :value parameters. Existing 
+  properties sharing names with the new properties will be overwritten. 
+  Attempting to add the properties _links or _embedded will cause an error."
   [resource & properties])
 
 (defn add-embedded-resource
