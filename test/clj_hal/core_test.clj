@@ -269,10 +269,28 @@
                        (new-curie "double" "and/{trouble}"))))))
 
 ;;;; Tests add-property
-#_(deftest add-property-valid)
-#_(deftest add-property-invalid-key)
-#_(deftest add-property-exists)
-#_(deftest add-property-reserved)
+
+(deftest add-property-valid
+  (testing "Tests adding valid property"
+    (are [r] (= r {:_links {:self {:href "info.com"}} :valid "valid value"})
+      (add-property info :valid "valid value")
+      (add-property info "valid" "valid value"))))
+
+(deftest add-property-invalid-key
+  (testing "Tests that invalid keys throw an AssertionError."
+    (are [n] (thrown? java.lang.AssertionError (add-property info n "value"))
+      ["what is this"] {} 139)))
+
+(deftest add-property-exists
+  (testing "Tests that existing properties will be overwritten."
+    (is (= (add-property info :final "final")
+           (-> info (add-property :final "not final") 
+                    (add-property :final "final"))))))
+
+(deftest add-property-reserved
+  (testing "Tests that you cannot add _embedded or _links."
+    (are [n] (thrown? java.lang.AssertionError (add-property info n "value"))
+      :_embedded :_links "_embedded" "_links")))
 
 ;;;; Tests add-properties
 #_(deftest add-properties-valid-single)
