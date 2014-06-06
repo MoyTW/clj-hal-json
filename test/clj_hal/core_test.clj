@@ -197,18 +197,43 @@
       (add-links info `(~planes ~tanks)))))
 
 ;;;; Tests add-curie
+
 (deftest add-curie-valid-minimal
   (testing "Tests that a valid curie will be properly added."
     (are [c] (= c {:_links {:self {:href "info.com"}
-                            :curies [{:name "minimal" 
-                                      :href "minimal.co" 
+                            :curies [{:name "valid" 
+                                      :href "valid/{temp}" 
                                       :templated true}]}})
-      (add-curie info :minimal "minimal.co")
-      (add-curie info "minimal" "minimal.co"))))
-#_(deftest add-curie-valid)
-#_(deftest add-curie-invalid-property)
-#_(deftest add-curie-link-untemplated)
-#_(deftest add-curie-already-exists)
+      (add-curie info :valid "valid/{temp}")
+      (add-curie info "valid" "valid/{temp}")
+      (add-curie info (new-curie "valid" "valid/{temp}")))))
+
+(deftest add-curie-valid
+  (testing "Tests that a valid curie will be properly added."
+    (is (= {:_links {:self {:href "info.com"}
+                     :curies [{:name "valid" :href "valid/{temp}" 
+                               :templated true :deprecation "deprecation"
+                               :hreflang "hreflang"}]}}
+           (add-curie info "valid" "valid/{temp}" :deprecation "deprecation" 
+                      :hreflang "hreflang")))))
+
+(deftest add-curie-malformed
+  (testing "Tests that a malformed curie will be rejected."
+    (are [c] (thrown? java.lang.AssertionError (add-curie info c))
+      {:curies {:href "lol/{template}" :name "lol"}} ; missing templated true
+      {:curies {:hreg "lol/{template}" :name "lol" :templated true}}
+      ["and now for something completely different"])))
+
+(deftest add-curie-untemplated
+  (testing "Tests that untemplated fails."
+    (is (thrown? java.lang.AssertionError
+      (add-curie info "explodes?" "explodes!")))))
+
+(deftest add-curie-already-exists
+  (testing "Tests that it does not double up on names"
+    (is (thrown? java.lang.AssertionError
+      (-> info (add-curie "double" "double/{toil}") 
+               (add-curie "double" "and/{trouble}"))))))
 
 ;;;; Tests add-curies
 #_(deftest add-curies-distinct-valid)

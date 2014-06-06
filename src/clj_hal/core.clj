@@ -84,7 +84,8 @@
 (defn add-curie
   "Creates and adds a new curie. Attempting to add a curie whose name already
   exists will cause an error."
-  [resource name href & properties])
+  ([resource link])
+  ([resource name href & properties]))
 
 (defn add-curies
   "Adds multiple curies. Attempting to add a curie whose name already exists
