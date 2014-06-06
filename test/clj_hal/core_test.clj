@@ -293,12 +293,48 @@
       :_embedded :_links "_embedded" "_links")))
 
 ;;;; Tests add-properties
-#_(deftest add-properties-valid-single)
-#_(deftest add-properties-valid-multiple)
-#_(deftest add-properties-exists)
-#_(deftest add-properties-not-distinct)
-#_(deftest add-properties-reserved)
-#_(deftest add-properties-bad-input)
+(deftest add-properties-valid-single
+  (testing "Tests adding valid property."
+    (are [r] (= r {:_links {:self {:href "info.com"}} :valid "valid value"})
+      (add-properties info :valid "valid value")
+      (add-properties info "valid" "valid value"))))
+
+(deftest add-properties-valid-multiple
+  (testing "Tests that adding multiple properties works."
+    (is (= (-> info (add-property :p1 "v1") (add-property :p2 "v2"))
+           (add-properties info :p1 "v1" :p2 "v2")))))
+
+(deftest add-properties-valid-map
+  (testing "Tests that adding a map works."
+    (is (= (-> info (add-property :p1 "v1") (add-property :p2 "v2"))
+           (add-properties info {:p1 "v1" :p2 "v2"})))))
+
+(deftest add-properties-valid-collection
+  (testing "Tests that adding a collection works."
+    (are [r] (= r (-> info (add-property :p1 "v1") (add-property :p2 "v2")))
+      (add-properties info [:p1 "v1" :p2 "v2"])
+      (add-properties info '(:p1 "v1" :p2 "v2")))))
+
+(deftest add-properties-overwrites
+  (testing "Tests that existing properties will be overwritten."
+    (is (= (add-property info :final "final")
+           (-> info (add-property :final "not-final") 
+                    (add-properties :final "final"))))))
+
+(deftest add-properties-not-distinct
+  (testing "Tests that if keys match, uses last key"
+    (is (= (add-property info :final "final") 
+           (add-properties info :final "not-final" :final "final")))))
+
+(deftest add-properties-reserved
+  (testing "Tests that you can't add _embedded, _links."
+    (are [n] (thrown? java.lang.AssertionError (add-properties info {n "v"}))
+      :_embedded :_links "_embedded" "_links")))
+
+(deftest add-properties-invalid-key
+  (testing "Tests that invalid keys throw an AssertionError."
+    (are [n] (thrown? java.lang.AssertionError (add-properties info {n "v"}))
+      ["what is this"] {} 139)))
 
 ;;;; Tests add-embedded-resource
 #_(deftest add-embedded-resource-new)
