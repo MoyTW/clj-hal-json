@@ -236,11 +236,37 @@
                (add-curie "double" "and/{trouble}"))))))
 
 ;;;; Tests add-curies
-#_(deftest add-curies-distinct-valid)
-#_(deftest add-curies-invalid-property)
-#_(deftest add-curies-link-untemplated)
-#_(deftest add-curies-not-distinct)
-#_(deftest add-curies-already-exists)
+(deftest add-curies-valid
+  (testing "Tests that valid curies are added."
+    (are [r] (= r (-> info (add-curie :v1 "v1/{t}") (add-curie :v2 "v2/{t}")))
+      (add-curies info (new-curie :v1 "v1/{t}") (new-curie :v2 "v2/{t}"))
+      (add-curies info [(new-curie :v1 "v1/{t}") (new-curie :v2 "v2/{t}")])
+      (add-curies info `(~(new-curie :v1 "v1/{t}") 
+                         ~(new-curie :v2 "v2/{t}"))))))
+
+(deftest add-curies-malformed
+  (testing "Tests that malformed curies will be rejected."
+    (are [c] (thrown? java.lang.AssertionError (add-curies info c))
+      {:not-curies {:href "lol/{template}" :name "lol" :templated true}}
+      {:curies {:href "lol/{template}" :name "lol"}}
+      {:curies {:hreg "lol/{template}" :name "lol" :templated true}}
+      [(new-curie :valid "valid/{t}")
+       {:not-curies {:href "lol/{template}" :name "lol" :templated true}}]
+      [(new-curie :valid "valid/{t}")
+       {:curies {:hreg "lol/{template}" :name "lol" :templated true}}])))
+
+(deftest add-curies-link-untemplated
+  (testing "Tests that untemplated fails."
+    (is (thrown? java.lang.AssertionError
+      (add-curies info {:curies {:href "notemplate}" 
+                                 :name "explodes"
+                                 :templated true}})))))
+
+(deftest add-curies-already-exists
+  (testing "Tests that you can't double-add."
+    (is (thrown? java.lang.AssertionError
+      (add-curies info (new-curie "double" "double/{toil}") 
+                       (new-curie "double" "and/{trouble}"))))))
 
 ;;;; Tests add-property
 #_(deftest add-property-valid)
