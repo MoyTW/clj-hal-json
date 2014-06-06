@@ -99,7 +99,10 @@
 (defn add-curies
   "Adds multiple curies. Attempting to add a curie whose name already exists
   will cause an error."
-  [resource & curies])
+  [resource & curies]
+  (if (and (= 1 (count curies)) (not (map? (first curies))))
+      (reduce add-curie resource (first curies))
+      (reduce add-curie resource curies)))
 
 (defn add-property 
   "Adds a single property to the resource. If there already exists a property
